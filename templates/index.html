@@ -8,13 +8,51 @@
 </head>
 <body>
     <div class="aurora" aria-hidden="true"></div>
-    <main class="card">
-        <h1 id="hello" tabindex="0">Hello, World!</h1>
-        <p class="lede">Tap the greeting to cycle through vibrant color palettes crafted to brighten your day.</p>
-        <button type="button" class="cta" data-action="change-color">Change the color</button>
+    <main class="shell" role="presentation">
+        <nav class="tab-bar" role="tablist" aria-label="Hello world demo tabs">
+            <button id="greeting-tab" class="tab is-active" data-tab-target="greeting" role="tab" aria-controls="greeting" aria-selected="true">Hello World</button>
+            <button id="create-tab" class="tab" data-tab-target="create" role="tab" aria-controls="create" aria-selected="false">Your Messages</button>
+        </nav>
+
+        <section id="greeting" class="panel is-active" role="tabpanel" aria-labelledby="greeting-tab">
+            <div class="card card--center">
+                <h1 id="hello" class="headline" tabindex="0">Hello, World!</h1>
+                <p class="lede">Tap the greeting to cycle through vibrant color palettes crafted to brighten your day.</p>
+                <button type="button" class="cta" data-action="change-color">Change the color</button>
+            </div>
+        </section>
+
+        <section id="create" class="panel" role="tabpanel" aria-labelledby="create-tab" aria-hidden="true">
+            <div class="workspace">
+                <div class="workspace-main">
+                    <h2 class="headline" id="selected-entry" tabindex="0">Create Something Beautiful</h2>
+                    <p class="lede">Type your own greeting, save it, and relive it instantly from the list of messages.</p>
+                    <form id="entry-form" class="entry-form" novalidate>
+                        <label class="sr-only" for="entry-content">Your greeting</label>
+                        <textarea id="entry-content" name="content" rows="3" placeholder="Share a dazzling greeting..." required></textarea>
+                        <div class="form-actions">
+                            <button type="submit" class="cta">Save message</button>
+                            <span class="hint" role="status" aria-live="polite"></span>
+                        </div>
+                    </form>
+                </div>
+                <aside class="workspace-list" aria-label="Saved messages">
+                    <h3>Saved Messages</h3>
+                    <ul id="entry-list">
+                        {% for entry in entries %}
+                        <li>
+                            <button type="button" class="entry" data-entry-id="{{ entry.id }}">{{ entry.content }}</button>
+                        </li>
+                        {% else %}
+                        <li class="empty-state">No messages yet — be the first to add one!</li>
+                        {% endfor %}
+                    </ul>
+                </aside>
+            </div>
+        </section>
     </main>
     <footer>
-        <small>Crafted with FastAPI • Served on port 8080</small>
+        <small>Crafted with FastAPI • Served on port 8080 • Powered by SQLite</small>
     </footer>
     <script src="/static/app.js"></script>
 </body>
