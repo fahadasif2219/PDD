@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -12,11 +13,6 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 
 DB_PATH = Path("app.db")
-app = FastAPI(title="PDD Hello World")
-
-# Mount templates and static assets
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 def _get_connection() -> sqlite3.Connection:
@@ -61,6 +57,9 @@ def _insert_entry(content: str) -> dict[str, Any]:
     return dict(row)
 
 
+templates = Jinja2Templates(directory="templates")
+
+
 async def get_entries() -> list[dict[str, Any]]:
     """Return all stored entries ordered by recency."""
     return await run_in_threadpool(_fetch_entries)
@@ -71,9 +70,14 @@ async def create_entry(content: str) -> dict[str, Any]:
     return await run_in_threadpool(_insert_entry, content)
 
 
-@app.on_event("startup")
-async def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     await run_in_threadpool(_init_db)
+    yield
+
+
+app = FastAPI(title="PDD Hello World", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/", response_class=HTMLResponse)
